@@ -19,6 +19,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Reservations from './pages/Reservations';
 import CashierPanel from './pages/CashierPanel';
+import KitchenPanel from './pages/KitchenPanel';
 
 function App() {
   return (
@@ -54,10 +55,16 @@ function App() {
                     <ProtectedRoute requiredRole="cashier">
                       <CashierPanel />
                     </ProtectedRoute>
-                  } />
+                                      } />
+                    <Route path="/kitchen" element={
+                      <ProtectedRoute requiredRole="kitchen">
+                        <KitchenPanel />
+                      </ProtectedRoute>
+                    } />
                   <Route path="/about" element={<About/>} />
                   <Route path="/contact" element={<Contact/>} />
                   <Route path="/reservations" element={<Reservations />} />
+
                 </Routes>
               </main>
               <Footer />

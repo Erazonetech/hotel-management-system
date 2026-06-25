@@ -64,7 +64,8 @@ export const orderService = {
   createOrder: (orderData) => api.post('/orders', orderData),
   getOrders: (params) => api.get('/orders', { params }),
   getOrder: (id) => api.get(`/orders/${id}`),
-  updateOrderStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
+  updateOrderStatus: (id, status, note) =>
+     api.put(`/orders/${id}/status`, { status, note }),
   cancelOrder: (id) => api.put(`/orders/${id}/cancel`),
 };
 

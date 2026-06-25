@@ -93,6 +93,7 @@ export const AuthProvider = ({ children }) => {
     isWaiter: user?.role === 'waiter',
     isKitchen: user?.role === 'kitchen',
     isCashier: user?.role === 'cashier',
+    isKitchen: user?.role === 'kitchen',
     login,
     register,
     logout,

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiUser, FiMenu, FiX, FiCalendar } from 'react-icons/fi';
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout, isAdmin, isWaiter, isCashier } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin, isWaiter, isCashier, isKitchen } = useAuth();
   const { getCartCount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -27,7 +27,9 @@ const Navbar = () => {
     }
      else if (isWaiter) {
       navLinks.push({ name: 'Waiter', path: '/waiter' });
-    }
+    } else if (isKitchen) {
+        navLinks.push({ name: 'Kitchen', path: '/kitchen' });
+      }
     else {
       navLinks.push({ name: 'My Orders', path: '/orders' });
     }

@@ -23,7 +23,7 @@ router.put('/:id/cancel', cancelOrder);
 // Staff only routes
 router.put(
   '/:id/status',
-  authorize('admin', 'waiter', 'kitchen'),
+  authorize('admin', 'waiter', 'kitchen', 'cashier'),
   updateOrderStatus
 );
 

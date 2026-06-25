@@ -214,6 +214,7 @@ const updateOrderStatus = async (req, res) => {
   try {
     const { status, note } = req.body;
     const order = await Order.findById(req.params.id);
+
     if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
 
     const user = req.user;
@@ -236,6 +237,37 @@ const updateOrderStatus = async (req, res) => {
     }
 
     // Assign responsible staff based on status
+
+    const statusResponsibility = {
+      'confirmed': { field: 'confirmedBy', role: 'cashier' },
+      'preparing': { field: 'preparedBy', role: 'kitchen' },
+      'ready': { field: 'preparedBy', role: 'kitchen' },
+      'served': { field: 'servedBy', role: 'waiter' },
+      'completed': { field: 'paymentProcessedBy', role: 'cashier' }
+    };
+
+      // Check if user has permission for this status change
+    const responsibility = statusResponsibility[status];
+    if (responsibility) {
+      // Allow admin to do anything
+      if (user.role !== 'admin') {
+        // Check if user has the required role
+        const allowedRoles = {
+          'confirmed': ['cashier', 'admin'],
+          'preparing': ['kitchen', 'admin'],
+          'ready': ['kitchen', 'admin'],
+          'served': ['waiter', 'admin'],
+          'completed': ['cashier', 'admin']
+        };
+        
+        if (!allowedRoles[status]?.includes(user.role)) {
+          return res.status(403).json({
+            success: false,
+            error: `Only ${allowedRoles[status]?.join(' or ')} can change status to ${status}`
+          });
+        }
+      }
+
     if (status === 'confirmed') order.confirmedBy = user._id;
     if (status === 'preparing') order.preparedBy = user._id;
     if (status === 'served') order.servedBy = user._id;
@@ -246,26 +278,27 @@ const updateOrderStatus = async (req, res) => {
         await Table.findByIdAndUpdate(order.table, { status: 'available', currentOrder: null });
       }
     }
+  }
 
     order.status = status;
     order.timeline.push({ status, timestamp: new Date(), note, user: user._id });
     await order.save();
 
     // Real-time notifications based on status
-    if (status === 'confirmed') {
-      emitToRole('kitchen', 'order-confirmed', { orderId: order._id, orderNumber: order.orderNumber });
-    }
-    if (status === 'preparing') {
-      emitToRole('cashier', 'order-preparing', { orderId: order._id });
-    }
-    if (status === 'ready') {
-      emitToRole('waiter', 'order-ready', { orderId: order._id, orderNumber: order.orderNumber });
-    }
-    if (status === 'served') {
-      emitToRole('cashier', 'order-served', { orderId: order._id, orderNumber: order.orderNumber });
-    }
-    if (status === 'completed') {
-      emitToRole('admin', 'order-completed', { orderId: order._id, orderNumber: order.orderNumber });
+   const notificationMap = {
+      'confirmed': { role: 'kitchen', event: 'order-confirmed' },
+      'preparing': { role: 'cashier', event: 'order-preparing' },
+      'ready': { role: 'waiter', event: 'order-ready' },
+      'served': { role: 'cashier', event: 'order-served' },
+      'completed': { role: 'admin', event: 'order-completed' }
+    };
+
+    const notification = notificationMap[status];
+    if (notification) {
+      emitToRole(notification.role, notification.event, { 
+        orderId: order._id, 
+        orderNumber: order.orderNumber 
+      });
     }
 
     // Notify the customer
