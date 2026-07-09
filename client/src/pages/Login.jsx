@@ -14,12 +14,16 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+   try {
+     setLoading(true);
     const result = await login(email, password);
     setLoading(false);
     if (result.success) {
       navigate('/');
     }
+   } catch (error) {
+    console.error(error)
+   }
   };
 
   return (

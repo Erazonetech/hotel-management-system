@@ -38,6 +38,27 @@ import paymentRoutes from './routes/paymentRoutes.js';
 const app = express();
 const server = http.createServer(app);
 
+const cors = require("cors");
+
+const allowedOrigins = [
+  "https://sigmatradinget.com",
+  "http://localhost:3000",
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 // Connect to database
 connectDB();
 
