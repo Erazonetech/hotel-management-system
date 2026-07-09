@@ -10,7 +10,6 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import cors from 'cors'
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,8 +42,8 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   "https://sigmatradinget.com",
-  "http://localhost:3000",
   "http://localhost:5173",
+  process.env.FRONTEND_URL || 'http://localhost:3000'
 ];
 
 app.use(
@@ -87,11 +86,11 @@ app.use(helmet({
 }));
 
 // Enable CORS
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
+// app.use(cors({
+//   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+//   credentials: true,
+//   optionsSuccessStatus: 200
+// }));
 
 // Data sanitization against NoSQL query injection
 // app.use(mongoSanitize());
